@@ -1,0 +1,100 @@
+# Hybrid Architecture Makefile
+
+.PHONY: help setup start stop restart status logs clean test backup
+
+help: ## Show this help message
+	@echo 'Usage: make [target]'
+	@echo ''
+	@echo 'Targets:'
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+setup: ## Setup hybrid architecture
+	chmod +x scripts/hybrid/*.sh
+	./scripts/hybrid/setup-hybrid.sh
+
+start: ## Start data ingestion processes
+	./scripts/hybrid/start-data-ingestion.sh
+
+stop: ## Stop data ingestion processes
+	./scripts/hybrid/stop-data-ingestion.sh
+
+restart: stop start ## Restart all processes
+
+status: ## Show status of all services
+	@echo "🐳 Docker Services:"
+	@docker-compose -f docker-compose.hybrid.yml ps
+	@echo ""
+	@echo "📊 Running Processes:"
+	@ps aux | grep -E "(sample-api-producer|sample-json-files|cloudwatch-metrics|s3-backup|npm run dev)" | grep -v grep || echo "No processes running"
+
+logs: ## Show logs for all services
+	@echo "📝 Service Logs:"
+	@echo "==============="
+	@echo "🐳 Docker Services:"
+	@docker-compose -f docker-compose.hybrid.yml logs --tail=20
+	@echo ""
+	@echo "📊 Application Logs:"
+	@echo "API Producer:"
+	@tail -10 logs/api-producer.log 2>/dev/null || echo "No API producer logs"
+	@echo ""
+	@echo "JSON Producer:"
+	@tail -10 logs/json-producer.log 2>/dev/null || echo "No JSON producer logs"
+	@echo ""
+	@echo "Frontend:"
+	@tail -10 logs/frontend.log 2>/dev/null || echo "No frontend logs"
+	@echo ""
+	@echo "CloudWatch Metrics:"
+	@tail -10 logs/cloudwatch-metrics.log 2>/dev/null || echo "No CloudWatch logs"
+	@echo ""
+	@echo "S3 Backup:"
+	@tail -10 logs/s3-backup.log 2>/dev/null || echo "No S3 backup logs"
+
+test: ## Run tests
+	pytest tests/ -v
+
+backup: ## Run manual backup
+	python3 aws/s3-backup-script.py
+
+monitor: ## Start monitoring
+	python3 aws/cloudwatch-metrics.py
+
+clean: ## Clean up everything
+	./scripts/hybrid/stop-data-ingestion.sh
+	docker-compose -f docker-compose.hybrid.yml down -v
+	docker system prune -f
+	rm -rf logs/*
+	rm -rf data/raw/*
+	rm -rf data/processed/*
+
+install-deps: ## Install dependencies
+	pip3 install -r requirements.txt
+	pip3 install -r aws/requirements.txt
+	pip3 install -r data-sources/requirements.txt
+	cd frontend && npm install
+
+check-health: ## Check health of all services
+	@echo "🏥 Health Check:"
+	@echo "==============="
+	@echo "PostgreSQL:"
+	@docker-compose -f docker-compose.hybrid.yml exec postgres pg_isready -U streaming_user -d streaming_db && echo "✅ Healthy" || echo "❌ Unhealthy"
+	@echo ""
+	@echo "Kafka:"
+	@docker-compose -f docker-compose.hybrid.yml exec kafka kafka-topics --bootstrap-server localhost:9092 --list > /dev/null 2>&1 && echo "✅ Healthy" || echo "❌ Unhealthy"
+	@echo ""
+	@echo "Spark Master:"
+	@curl -f http://localhost:8080 > /dev/null 2>&1 && echo "✅ Healthy" || echo "❌ Unhealthy"
+	@echo ""
+	@echo "Airflow:"
+	@curl -f http://localhost:8081/health > /dev/null 2>&1 && echo "✅ Healthy" || echo "❌ Unhealthy"
+	@echo ""
+	@echo "Frontend:"
+	@curl -f http://localhost:3000 > /dev/null 2>&1 && echo "✅ Healthy" || echo "❌ Unhealthy"
+
+show-urls: ## Show access URLs
+	@echo "🌐 Access URLs:"
+	@echo "=============="
+	@echo "Frontend Dashboard: http://localhost:3000"
+	@echo "Airflow UI: http://localhost:8081"
+	@echo "Spark Master: http://localhost:8080"
+	@echo "PostgreSQL: localhost:5432"
+	@echo "Kafka: localhost:9092"
