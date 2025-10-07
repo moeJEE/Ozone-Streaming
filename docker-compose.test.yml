@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  postgres-test:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: test_streaming_db
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_pass
+    ports:
+      - 5433:5432
+    networks:
+      - test-network
+
+  kafka-test:
+    image: confluentinc/cp-kafka:latest
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-test:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - 9093:9092
+    depends_on:
+      - zookeeper-test
+    networks:
+      - test-network
+
+  zookeeper-test:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 2182:2181
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    driver: bridge
+

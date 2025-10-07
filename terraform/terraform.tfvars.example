@@ -1,0 +1,33 @@
+# Data Streaming Pipeline - Terraform Variables Example
+# Copy this file to terraform.tfvars and update the values
+
+# AWS Configuration
+aws_region = "us-west-2"
+environment = "development"
+
+# Project Configuration
+project_name = "data-streaming-pipeline"
+
+# Network Configuration
+vpc_cidr = "10.0.0.0/16"
+private_subnet_cidrs = ["10.0.1.0/24", "10.0.2.0/24"]
+public_subnet_cidrs = ["10.0.101.0/24", "10.0.102.0/24"]
+
+# Database Configuration
+postgres_instance_class = "db.t3.micro"
+postgres_db_name = "streaming_db"
+postgres_username = "streaming_user"
+postgres_password = "your-secure-password-here"
+
+# Instance Types
+kafka_instance_type = "t3.medium"
+spark_instance_type = "t3.large"
+airflow_instance_type = "t3.medium"
+frontend_instance_type = "t3.small"
+
+# Additional Tags
+tags = {
+  Owner       = "data-team"
+  CostCenter  = "engineering"
+  Project     = "data-streaming-pipeline"
+}

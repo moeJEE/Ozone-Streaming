@@ -1,0 +1,74 @@
+{
+  "alarms": [
+    {
+      "AlarmName": "DataStreamingPipeline-HighDatabaseConnections",
+      "AlarmDescription": "Database connection count is too high",
+      "MetricName": "database_connections",
+      "Namespace": "DataStreamingPipeline",
+      "Statistic": "Average",
+      "Period": 300,
+      "EvaluationPeriods": 2,
+      "Threshold": 80,
+      "ComparisonOperator": "GreaterThanThreshold",
+      "AlarmActions": ["arn:aws:sns:us-west-2:123456789012:data-pipeline-alerts"],
+      "OKActions": ["arn:aws:sns:us-west-2:123456789012:data-pipeline-alerts"],
+      "InsufficientDataActions": ["arn:aws:sns:us-west-2:123456789012:data-pipeline-alerts"]
+    },
+    {
+      "AlarmName": "DataStreamingPipeline-LowProcessingRate",
+      "AlarmDescription": "Data processing rate is too low",
+      "MetricName": "processing_rate",
+      "Namespace": "DataStreamingPipeline",
+      "Statistic": "Average",
+      "Period": 300,
+      "EvaluationPeriods": 3,
+      "Threshold": 90,
+      "ComparisonOperator": "LessThanThreshold",
+      "AlarmActions": ["arn:aws:sns:us-west-2:123456789012:data-pipeline-alerts"],
+      "OKActions": ["arn:aws:sns:us-west-2:123456789012:data-pipeline-alerts"],
+      "InsufficientDataActions": ["arn:aws:sns:us-west-2:123456789012:data-pipeline-alerts"]
+    },
+    {
+      "AlarmName": "DataStreamingPipeline-HighKafkaLag",
+      "AlarmDescription": "Kafka consumer lag is too high",
+      "MetricName": "kafka_consumer_lag",
+      "Namespace": "DataStreamingPipeline",
+      "Statistic": "Average",
+      "Period": 300,
+      "EvaluationPeriods": 2,
+      "Threshold": 100,
+      "ComparisonOperator": "GreaterThanThreshold",
+      "AlarmActions": ["arn:aws:sns:us-west-2:123456789012:data-pipeline-alerts"],
+      "OKActions": ["arn:aws:sns:us-west-2:123456789012:data-pipeline-alerts"],
+      "InsufficientDataActions": ["arn:aws:sns:us-west-2:123456789012:data-pipeline-alerts"]
+    },
+    {
+      "AlarmName": "DataStreamingPipeline-HighErrorRate",
+      "AlarmDescription": "Error rate is too high",
+      "MetricName": "error_rate",
+      "Namespace": "DataStreamingPipeline",
+      "Statistic": "Average",
+      "Period": 300,
+      "EvaluationPeriods": 2,
+      "Threshold": 5,
+      "ComparisonOperator": "GreaterThanThreshold",
+      "AlarmActions": ["arn:aws:sns:us-west-2:123456789012:data-pipeline-alerts"],
+      "OKActions": ["arn:aws:sns:us-west-2:123456789012:data-pipeline-alerts"],
+      "InsufficientDataActions": ["arn:aws:sns:us-west-2:123456789012:data-pipeline-alerts"]
+    },
+    {
+      "AlarmName": "DataStreamingPipeline-LowThroughput",
+      "AlarmDescription": "Data throughput is too low",
+      "MetricName": "kafka_messages_per_second",
+      "Namespace": "DataStreamingPipeline",
+      "Statistic": "Average",
+      "Period": 300,
+      "EvaluationPeriods": 3,
+      "Threshold": 10,
+      "ComparisonOperator": "LessThanThreshold",
+      "AlarmActions": ["arn:aws:sns:us-west-2:123456789012:data-pipeline-alerts"],
+      "OKActions": ["arn:aws:sns:us-west-2:123456789012:data-pipeline-alerts"],
+      "InsufficientDataActions": ["arn:aws:sns:us-west-2:123456789012:data-pipeline-alerts"]
+    }
+  ]
+}
